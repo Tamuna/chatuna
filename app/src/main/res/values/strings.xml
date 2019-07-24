@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Chatuna</string>
+    <string name="history">ისტორია</string>
+    <string name="please_wait">გთხოვთ დაელოდოთ</string>
+    <string name="cancel">გაუქმება</string>
+    <string name="chat">ჩატი</string>
 </resources>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CustomToolbar">
+        <attr name="show_menu_button" format="boolean" />
+        <attr name="show_back_button" format="boolean" />
+        <attr name="show_delete_button" format="boolean" />
+        <attr name="header_text" format="string" />
+    </declare-styleable>
+</resources>
