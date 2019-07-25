@@ -4,8 +4,12 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
+
+import ge.edu.freeuni.chatuna.utils.DateTypeConverter;
 
 @Entity(tableName = "users")
+@TypeConverters({DateTypeConverter.class})
 public class User {
     @PrimaryKey(autoGenerate = true)
     public int id;
