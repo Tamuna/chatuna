@@ -20,8 +20,16 @@ public class ChatActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     CustomToolbar toolbar;
 
+    private static final String EXTRA_SENDER_NAME = "EXTRA_SENDER_NAME";
+
     public static void start(Activity activity) {
         Intent intent = new Intent(activity, ChatActivity.class);
+        activity.startActivity(intent);
+    }
+
+    public static void start(Activity activity, String senderName) {
+        Intent intent = new Intent(activity, ChatActivity.class);
+        intent.putExtra(EXTRA_SENDER_NAME, senderName);
         activity.startActivity(intent);
     }
 
