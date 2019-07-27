@@ -6,6 +6,12 @@ class MainPresenterImpl(
         private val interactor: MainContract.MainInteractor,
         private val view: MainContract.MainView
 ) : MainContract.MainPresenter {
+
+    override fun start() {
+        getHistory();
+        view.registerReceiver();
+    }
+
     override fun getHistory() {
         interactor.getHistory(OnFinishListenerImpl())
     }

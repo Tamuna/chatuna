@@ -9,7 +9,6 @@ import androidx.room.TypeConverters;
 import ge.edu.freeuni.chatuna.utils.DateTypeConverter;
 
 @Entity(tableName = "users")
-@TypeConverters({DateTypeConverter.class})
 public class User {
     @PrimaryKey(autoGenerate = true)
     public int id;

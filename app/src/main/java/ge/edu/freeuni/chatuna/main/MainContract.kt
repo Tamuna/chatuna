@@ -6,9 +6,12 @@ interface MainContract {
     interface MainView {
         fun onNoDataLoaded()
         fun onDataLoaded(histories: List<HistoryModel>)
+        fun registerReceiver()
+        fun unregisterReceiver()
     }
 
     interface MainPresenter {
+        fun start()
         fun getHistory()
     }
 

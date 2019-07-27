@@ -1,5 +1,10 @@
 package ge.edu.freeuni.chatuna.main;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
@@ -23,6 +28,8 @@ import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
 
 public class MainActivity extends AppCompatActivity implements MainContract.MainView {
+
+    private WiFiP2pBroadcastReceiver wiFiP2pBroadcastReceiver;
 
     private HistoryRecyclerAdapter adapter;
     private MainContract.MainPresenter presenter;
@@ -58,7 +65,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         initView();
 
         presenter = new MainPresenterImpl(new MainInteractorImpl(), this);
-        presenter.getHistory();
+        presenter.start();
+
+        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiManager.setWifiEnabled(true);
     }
 
 
@@ -67,6 +77,24 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         adapter = new HistoryRecyclerAdapter(new OnItemClickedListenerImpl());
         rvHistory.setAdapter(adapter);
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    @Override
+    public void registerReceiver() {
+        wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        registerReceiver(wiFiP2pBroadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void unregisterReceiver() {
+        if (wiFiP2pBroadcastReceiver == null) {
+            unregisterReceiver(wiFiP2pBroadcastReceiver);
+        }
     }
 
     @Override
