@@ -1,4 +1,4 @@
-package ge.edu.freeuni.chatuna.data.local;
+package ge.edu.freeuni.chatuna.data.source.local;
 
 import android.content.Context;
 
@@ -20,7 +20,7 @@ public abstract class ChatDatabase extends RoomDatabase {
 
     private static final Object lock = new Object();
 
-    public abstract ChatDatabase toDoDao();
+    public abstract ChatDao chatDao();
 
     public static ChatDatabase getInstance(Context context){
         synchronized (lock){
