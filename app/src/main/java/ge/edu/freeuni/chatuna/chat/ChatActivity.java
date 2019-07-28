@@ -3,9 +3,12 @@ package ge.edu.freeuni.chatuna.chat;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -19,6 +22,15 @@ public class ChatActivity extends AppCompatActivity {
 
     @BindView(R.id.toolbar)
     CustomToolbar toolbar;
+
+    @BindView(R.id.rv_messages)
+    RecyclerView rvMessages;
+
+    @BindView(R.id.et_message_input)
+    EditText etMessageInput;
+
+    @BindView(R.id.btn_send)
+    Button btnSend;
 
     private static final String EXTRA_SENDER_NAME = "EXTRA_SENDER_NAME";
 
