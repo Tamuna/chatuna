@@ -13,12 +13,12 @@ import ge.edu.freeuni.chatuna.model.HistoryModel;
 
 @Dao
 public interface ChatDao {
-    List<HistoryModel> getHistory(int id);
+//    List<HistoryModel> getHistory(int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(Message message);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    int insertUser(User user);
+    long insertUser(User user);
 
 }

@@ -7,7 +7,7 @@ import ge.edu.freeuni.chatuna.data.User;
 
 public interface ChatDataSource {
     interface InsertUserCallback {
-        void onUserInserted(int id);
+        void onUserInserted(long id);
     }
 
     void saveUser(@NonNull User user, @NonNull InsertUserCallback callback);

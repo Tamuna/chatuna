@@ -38,7 +38,8 @@ public class ChatLocalDataSource implements ChatDataSource {
         Runnable saveRunnable = new Runnable() {
             @Override
             public void run() {
-                final int id = chatDao.insertUser(user);
+                final long id = chatDao.insertUser(user);
+
 
                 appExecutors.mainThread().execute(new Runnable() {
                     @Override

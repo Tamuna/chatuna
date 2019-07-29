@@ -2,9 +2,12 @@ package ge.edu.freeuni.chatuna.data.source;
 
 import androidx.annotation.NonNull;
 
+import ge.edu.freeuni.chatuna.data.Message;
+import ge.edu.freeuni.chatuna.data.User;
+import ge.edu.freeuni.chatuna.data.source.local.ChatDatabase;
 import ge.edu.freeuni.chatuna.data.source.local.ChatLocalDataSource;
 
-public class ChatRepository {
+public class ChatRepository implements ChatDataSource {
     private volatile static ChatRepository INSTANCE = null;
 
     private ChatLocalDataSource chatLocalDataSource;
@@ -22,5 +25,20 @@ public class ChatRepository {
             }
         }
         return INSTANCE;
+    }
+
+    @Override
+    public void saveUser(@NonNull final User user, @NonNull final InsertUserCallback callback) {
+        chatLocalDataSource.saveUser(user, new InsertUserCallback() {
+            @Override
+            public void onUserInserted(long id) {
+                callback.onUserInserted(id);
+            }
+        });
+    }
+
+    @Override
+    public void saveMessage(@NonNull Message message) {
+        chatLocalDataSource.saveMessage(message);
     }
 }

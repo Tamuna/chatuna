@@ -11,7 +11,7 @@ import ge.edu.freeuni.chatuna.utils.DateTypeConverter;
 @Entity(tableName = "users")
 public class User {
     @PrimaryKey(autoGenerate = true)
-    public int id;
+    public long id;
 
     @ColumnInfo(name = "name")
     private String name;
@@ -27,11 +27,11 @@ public class User {
         setName(name);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
