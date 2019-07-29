@@ -2,10 +2,13 @@ package ge.edu.freeuni.chatuna.data.source;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
 import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.data.source.local.ChatDatabase;
 import ge.edu.freeuni.chatuna.data.source.local.ChatLocalDataSource;
+import ge.edu.freeuni.chatuna.model.HistoryModel;
 
 public class ChatRepository implements ChatDataSource {
     private volatile static ChatRepository INSTANCE = null;
@@ -25,6 +28,21 @@ public class ChatRepository implements ChatDataSource {
             }
         }
         return INSTANCE;
+    }
+
+    @Override
+    public void getHistory(long id, @NonNull GetHistoryCallback callback) {
+        chatLocalDataSource.getHistory(id, new GetHistoryCallback() {
+            @Override
+            public void onHistoryLoaded(List<HistoryModel> histories) {
+                callback.onHistoryLoaded(histories);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
     }
 
     @Override
