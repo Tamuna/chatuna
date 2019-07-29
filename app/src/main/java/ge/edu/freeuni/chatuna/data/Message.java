@@ -23,7 +23,6 @@ public class Message {
 
     @Ignore
     public Message(String messageText, Date createDate, int userId) {
-        setId(-1);
         setMessageText(messageText);
         setCreateDate(createDate);
         setUserId(userId);

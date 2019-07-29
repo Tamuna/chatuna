@@ -18,7 +18,6 @@ public class User {
 
     @Ignore
     public User(String name){
-        setId(-1);
         setName(name);
     }
 
