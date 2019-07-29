@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
         @Override
         public void onHistoryItemClick(@NotNull HistoryModel historyModel) {
-            ChatActivity.start(MainActivity.this, historyModel.getSenderName());
+            ChatActivity.start(MainActivity.this, historyModel.getSenderName(), true);
         }
     }
 }

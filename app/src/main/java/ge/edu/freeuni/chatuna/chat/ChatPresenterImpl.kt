@@ -1,10 +1,25 @@
 package ge.edu.freeuni.chatuna.chat
 
+import ge.edu.freeuni.chatuna.model.MessageModel
+
 class ChatPresenterImpl(
-        private val chatView: ChatContract.ChatView,
-        private val chatInteractor: ChatContract.ChatInteractor
+        private val view: ChatContract.ChatView,
+        private val interactor: ChatContract.ChatInteractor
 ) : ChatContract.ChatPresenter {
+    override fun loadChatHistory(senderName: String) {
+        interactor.loadHistory(senderName, OnFinishListenerImpl())
+    }
+
+    override fun sendMessage(message: MessageModel) {
+    }
 
     inner class OnFinishListenerImpl : ChatContract.ChatInteractor.OnFinishListener {
+        override fun onMessageSent(message: MessageModel) {
+            view.sendMessage(message)
+        }
+
+        override fun onHistoryLoaded(history: List<MessageModel>) {
+            view.displayHistory(history)
+        }
     }
 }
