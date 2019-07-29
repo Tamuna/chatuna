@@ -2,9 +2,12 @@ package ge.edu.freeuni.chatuna.data.source.local;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
+
 import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.data.source.ChatDataSource;
+import ge.edu.freeuni.chatuna.model.HistoryModel;
 import ge.edu.freeuni.chatuna.utils.AppExecutors;
 
 public class ChatLocalDataSource implements ChatDataSource {
@@ -32,6 +35,27 @@ public class ChatLocalDataSource implements ChatDataSource {
         return INSTANCE;
     }
 
+    @Override
+    public void getHistory(long id, @NonNull final GetHistoryCallback callback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                final List<HistoryModel> histories = chatDao.getHistory(id);
+                appExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (histories.isEmpty()) {
+                            callback.onDataNotAvailable();
+                        } else {
+                            callback.onHistoryLoaded(histories);
+                        }
+                    }
+                });
+            }
+        };
+
+        appExecutors.diskIO().execute(runnable);
+    }
 
     @Override
     public void saveUser(@NonNull User user, @NonNull InsertUserCallback callback) {
