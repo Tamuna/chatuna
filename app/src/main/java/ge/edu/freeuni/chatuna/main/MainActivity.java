@@ -1,7 +1,6 @@
 package ge.edu.freeuni.chatuna.main;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
