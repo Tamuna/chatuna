@@ -12,4 +12,15 @@ public class ChatRepository {
     private ChatRepository( @NonNull ChatLocalDataSource chatLocalDataSource) {
         this.chatLocalDataSource = chatLocalDataSource;
     }
+
+    public static ChatRepository getInstance(ChatLocalDataSource toDosLocalDataSource) {
+        if (INSTANCE == null) {
+            synchronized (ChatRepository.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new ChatRepository(toDosLocalDataSource);
+                }
+            }
+        }
+        return INSTANCE;
+    }
 }

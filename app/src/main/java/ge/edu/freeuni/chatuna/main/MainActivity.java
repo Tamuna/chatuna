@@ -22,6 +22,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ge.edu.freeuni.chatuna.Injection;
 import ge.edu.freeuni.chatuna.R;
 import ge.edu.freeuni.chatuna.chat.ChatActivity;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
@@ -64,7 +65,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         ButterKnife.bind(this);
         initView();
 
-        presenter = new MainPresenterImpl(new MainInteractorImpl(), this);
+        presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
+                provideChatRepository(this.getApplicationContext())), this);
         presenter.start();
 
         WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
