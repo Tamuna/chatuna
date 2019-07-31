@@ -19,6 +19,9 @@ public interface ChatDao {
             "m1.user_id) max_dates WHERE user_id != :id AND max_dates.m_user_id = u.id GROUP BY user_id")
     List<HistoryModel> getHistory(long id);
 
+    @Query("SELECT id FROM users WHERE :name = name")
+    long getUserIdByName(String name);
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(Message message);
 

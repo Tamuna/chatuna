@@ -10,23 +10,27 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = "P2pBroadcastReceiver";
 
-    public WiFiP2pBroadcastReceiver() {
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+    private MainActivity mainActivity;
+
+    public WiFiP2pBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, MainActivity mainActivity) {
         super();
+
+        this.manager = manager;
+        this.channel = channel;
+        this.mainActivity = mainActivity;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
 
-        if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
+        if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
-            NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
 
-            if (networkInfo.isConnected()) {
-
-            } else {
-                // It's a disconnect, i need to restart the discovery phase
-            }
+        } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 

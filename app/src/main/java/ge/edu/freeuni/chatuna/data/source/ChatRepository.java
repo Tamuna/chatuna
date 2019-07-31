@@ -31,6 +31,21 @@ public class ChatRepository implements ChatDataSource {
     }
 
     @Override
+    public void getUserIdByName(String name, GetIdCallback callback) {
+        chatLocalDataSource.getUserIdByName(name, new GetIdCallback() {
+            @Override
+            public void onIdLoaded(long id) {
+                callback.onIdLoaded(id);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
     public void getHistory(long id, @NonNull GetHistoryCallback callback) {
         chatLocalDataSource.getHistory(id, new GetHistoryCallback() {
             @Override

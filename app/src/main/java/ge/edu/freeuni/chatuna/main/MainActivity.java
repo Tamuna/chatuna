@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     private WiFiP2pBroadcastReceiver wiFiP2pBroadcastReceiver;
 
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+
     private HistoryRecyclerAdapter adapter;
     private MainContract.MainPresenter presenter;
     @BindView(R.id.view_navigation)
@@ -69,7 +72,21 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         presenter.start();
 
         WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiManager.setWifiEnabled(true);
+        if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
+        }
+
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onFailure(int i) {
+
+            }
+        });
     }
 
 
@@ -82,7 +99,9 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     @Override
     public void registerReceiver() {
-        wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver();
+        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(this, getMainLooper(), null);
+        wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver(manager, channel, this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);

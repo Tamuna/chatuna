@@ -19,6 +19,14 @@ public interface ChatDataSource {
         void onDataNotAvailable();
     }
 
+    interface GetIdCallback {
+        void onIdLoaded(long id);
+
+        void onDataNotAvailable();
+    }
+
+    void getUserIdByName(String name, GetIdCallback callback);
+
     void getHistory(long id, @NonNull final GetHistoryCallback callback);
 
     void saveUser(@NonNull User user, @NonNull InsertUserCallback callback);

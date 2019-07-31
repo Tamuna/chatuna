@@ -36,6 +36,24 @@ public class ChatLocalDataSource implements ChatDataSource {
     }
 
     @Override
+    public void getUserIdByName(final String name, final GetIdCallback callback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                final long id = chatDao.getUserIdByName(name);
+                appExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onIdLoaded(id);
+                    }
+                });
+            }
+        };
+
+        appExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
     public void getHistory(long id, @NonNull final GetHistoryCallback callback) {
         Runnable runnable = new Runnable() {
             @Override
