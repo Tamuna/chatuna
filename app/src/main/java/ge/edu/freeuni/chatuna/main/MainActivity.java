@@ -3,10 +3,14 @@ package ge.edu.freeuni.chatuna.main;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -16,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,6 +39,10 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
+
+    private List<WifiP2pDevice> peers = new ArrayList<>();
+    private String[] deviceNames;
+    private WifiP2pDevice[] devices;
 
     private HistoryRecyclerAdapter adapter;
     private MainContract.MainPresenter presenter;
@@ -57,6 +66,17 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
     @OnClick(R.id.layoutMenuHistory)
     void onHistoryMenuItemClick() {
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("test", "Discovery Started");
+            }
+
+            @Override
+            public void onFailure(int i) {
+
+            }
+        });
         navigationView.closeDrawer(Gravity.LEFT);
     }
 
@@ -77,20 +97,27 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
         }
-
-        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onFailure(int i) {
-
-            }
-        });
     }
 
+    WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
+        @Override
+        public void onPeersAvailable(WifiP2pDeviceList peerList) {
+            if (!peerList.getDeviceList().equals(peers)) {
+                peers.clear();
+                peers.addAll(peerList.getDeviceList());
+
+                deviceNames = new String[peerList.getDeviceList().size()];
+                devices = new WifiP2pDevice[peerList.getDeviceList().size()];
+
+                int i = 0;
+                for(WifiP2pDevice device : peerList.getDeviceList()) {
+                    deviceNames[i] = device.deviceName;
+                    devices[i] = device;
+                    i++;
+                }
+            }
+        }
+    };
 
     private void initView() {
         toolbar.setListener(new OnMainItemsClickListenerImpl());
