@@ -10,7 +10,7 @@ import java.util.Date;
 @Entity(tableName = "messages")
 public class Message {
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private long id;
 
     @ColumnInfo(name = "message_text")
     private String messageText;
@@ -19,27 +19,27 @@ public class Message {
     private Date createDate;
 
     @ColumnInfo(name = "user_id")
-    private int userId;
+    private long userId;
 
     @Ignore
-    public Message(String messageText, Date createDate, int userId) {
+    public Message(String messageText, Date createDate, long userId) {
         setMessageText(messageText);
         setCreateDate(createDate);
         setUserId(userId);
     }
 
-    public Message(int id, String messageText, Date createDate, int userId) {
+    public Message(long id, String messageText, Date createDate, long userId) {
         setId(id);
         setMessageText(messageText);
         setCreateDate(createDate);
         setUserId(userId);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -59,11 +59,11 @@ public class Message {
         this.createDate = createDate;
     }
 
-    public int getUserId() {
+    public long getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(long userId) {
         this.userId = userId;
     }
 }

@@ -8,8 +8,13 @@ class MainPresenterImpl(
 ) : MainContract.MainPresenter {
 
     override fun start() {
-        getHistory();
-        view.registerReceiver();
+        getHistory()
+        handleCurrentUser()
+        view.registerReceiver()
+    }
+
+    private fun handleCurrentUser() {
+        interactor.handleCurrentUser()
     }
 
     override fun getHistory() {

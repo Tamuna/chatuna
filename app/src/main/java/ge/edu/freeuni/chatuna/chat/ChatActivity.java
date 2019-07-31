@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,10 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import ge.edu.freeuni.chatuna.Injection;
 import ge.edu.freeuni.chatuna.R;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.MessageModel;
@@ -36,8 +38,13 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
     @BindView(R.id.et_message_input)
     EditText etMessageInput;
 
-    @BindView(R.id.btn_send)
-    Button btnSend;
+    @OnClick(R.id.btn_send)
+    void onSendClick() {
+        String message = etMessageInput.getText().toString();
+        if (!message.isEmpty()) {
+            presenter.sendMessage(new MessageModel(message, new Date(), "tamuna", true));
+        }
+    }
 
     @BindView(R.id.layout_message_input)
     ConstraintLayout layoutMessageInput;
@@ -70,7 +77,8 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
         ButterKnife.bind(this);
         initView(isHistory);
 
-        presenter = new ChatPresenterImpl(this, new ChatInteractorImpl());
+        presenter = new ChatPresenterImpl(this, new ChatInteractorImpl(Injection.
+                provideChatRepository(this.getApplicationContext())));
         if (isHistory) {
             presenter.loadChatHistory(senderName);
         }

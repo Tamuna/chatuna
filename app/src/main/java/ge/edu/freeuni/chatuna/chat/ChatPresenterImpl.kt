@@ -11,6 +11,7 @@ class ChatPresenterImpl(
     }
 
     override fun sendMessage(message: MessageModel) {
+        interactor.sendMessage(message, OnFinishListenerImpl())
     }
 
     inner class OnFinishListenerImpl : ChatContract.ChatInteractor.OnFinishListener {

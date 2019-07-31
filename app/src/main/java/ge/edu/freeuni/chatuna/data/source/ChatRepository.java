@@ -6,7 +6,6 @@ import java.util.List;
 
 import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
-import ge.edu.freeuni.chatuna.data.source.local.ChatDatabase;
 import ge.edu.freeuni.chatuna.data.source.local.ChatLocalDataSource;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
 
@@ -15,7 +14,7 @@ public class ChatRepository implements ChatDataSource {
 
     private ChatLocalDataSource chatLocalDataSource;
 
-    private ChatRepository( @NonNull ChatLocalDataSource chatLocalDataSource) {
+    private ChatRepository(@NonNull ChatLocalDataSource chatLocalDataSource) {
         this.chatLocalDataSource = chatLocalDataSource;
     }
 
@@ -55,7 +54,7 @@ public class ChatRepository implements ChatDataSource {
 
             @Override
             public void onDataNotAvailable() {
-
+                callback.onDataNotAvailable();
             }
         });
     }

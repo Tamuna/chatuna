@@ -5,10 +5,9 @@ import android.util.Log;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-import ge.edu.freeuni.chatuna.data.Message;
+import ge.edu.freeuni.chatuna.App;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.data.source.ChatDataSource;
 import ge.edu.freeuni.chatuna.data.source.ChatRepository;
@@ -23,14 +22,24 @@ public class MainInteractorImpl implements MainContract.MainInteractor {
 
     @Override
     public void getHistory(@NotNull OnFinishListener onFinishListener) {
-        //TODO: elene implement this and return real data <3
-        List<HistoryModel> testData = new ArrayList<>();
-        chatRepository.getHistory(2, new ChatDataSource.GetHistoryCallback() {
+        chatRepository.getUserIdByName(App.username, new ChatDataSource.GetIdCallback() {
+
             @Override
-            public void onHistoryLoaded(List<HistoryModel> histories) {
-                testData.addAll(histories);
-                Log.d("test", testData.toString());
-                onFinishListener.onFinished(testData);
+            public void onIdLoaded(long id) {
+                List<HistoryModel> testData = new ArrayList<>();
+                chatRepository.getHistory(id, new ChatDataSource.GetHistoryCallback() {
+                    @Override
+                    public void onHistoryLoaded(List<HistoryModel> histories) {
+                        testData.addAll(histories);
+                        onFinishListener.onFinished(testData);
+                    }
+
+
+                    @Override
+                    public void onDataNotAvailable() {
+                        onFinishListener.onFinished(testData);
+                    }
+                });
             }
 
             @Override
@@ -38,7 +47,23 @@ public class MainInteractorImpl implements MainContract.MainInteractor {
 
             }
         });
-//        testData.add(new HistoryModel("tamuna", 89, "12/12"));
-//        testData.add(new HistoryModel("elene", 89, "12/12"));
+
+    }
+
+    @Override
+    public void handleCurrentUser() {
+        chatRepository.getUserIdByName(App.username, new ChatDataSource.GetIdCallback() {
+            @Override
+            public void onIdLoaded(long id) {
+                if (id <= 0) {
+                    chatRepository.saveUser(new User(App.username), id1 -> Log.d("idid", id1 + "ins"));
+                }
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
     }
 }

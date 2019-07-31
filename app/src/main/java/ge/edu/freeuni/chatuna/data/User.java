@@ -4,9 +4,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import androidx.room.TypeConverters;
-
-import ge.edu.freeuni.chatuna.utils.DateTypeConverter;
 
 @Entity(tableName = "users")
 public class User {
@@ -21,7 +18,7 @@ public class User {
         setName(name);
     }
 
-    public User(int id, String name) {
+    public User(long id, String name) {
         setId(id);
         setName(name);
     }

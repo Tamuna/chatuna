@@ -50,7 +50,7 @@ class ChatRecyclerAdapter : RecyclerView.Adapter<ChatRecyclerAdapter.ChatViewHol
 
         fun bindView(message: MessageModel) {
             tvMessage.text = message.messageText
-            tvDate.text = message.createDate
+            tvDate.text = message.createDate.toString()
         }
     }
 }

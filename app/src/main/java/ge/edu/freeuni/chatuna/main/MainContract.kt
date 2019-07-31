@@ -21,5 +21,6 @@ interface MainContract {
         }
 
         fun getHistory(onFinishListener: OnFinishListener)
+        fun handleCurrentUser()
     }
 }

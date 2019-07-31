@@ -1,18 +1,26 @@
 package ge.edu.freeuni.chatuna.chat
 
+import ge.edu.freeuni.chatuna.data.Message
+import ge.edu.freeuni.chatuna.data.source.ChatDataSource
+import ge.edu.freeuni.chatuna.data.source.ChatRepository
 import ge.edu.freeuni.chatuna.model.MessageModel
 
-class ChatInteractorImpl : ChatContract.ChatInteractor {
+class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContract.ChatInteractor {
     override fun loadHistory(senderName: String, onFinishListener: ChatContract.ChatInteractor.OnFinishListener) {
-        //TODO load messages from db
-        val test = ArrayList<MessageModel>()
-        test.add(MessageModel("hello darling","12/12", "Tamuna"))
-        test.add(MessageModel("hello darling","12/12", "Tamuna"))
-        test.add(MessageModel("hello darling","12/12", "Tamuna"))
-        onFinishListener.onHistoryLoaded(test)
+
     }
 
     override fun sendMessage(message: MessageModel, onFinishListener: ChatContract.ChatInteractor.OnFinishListener) {
-        //TODO save message in db
+        chatRepository.getUserIdByName(message.senderName, object : ChatDataSource.GetIdCallback {
+            override fun onIdLoaded(id: Long) {
+                chatRepository.saveMessage(Message(message.messageText, message.createDate, id))
+            }
+
+            override fun onDataNotAvailable() {
+
+            }
+
+        })
+
     }
 }

@@ -21,6 +21,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ge.edu.freeuni.chatuna.App;
 import ge.edu.freeuni.chatuna.Injection;
 import ge.edu.freeuni.chatuna.R;
 import ge.edu.freeuni.chatuna.chat.ChatActivity;
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
         ButterKnife.bind(this);
         initView();
+        App.username = "tamuna";
 
         presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())), this);
