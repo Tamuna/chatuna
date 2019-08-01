@@ -1,5 +1,6 @@
 package ge.edu.freeuni.chatuna.main;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,14 +14,14 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
-    private MainActivity mainActivity;
+    private Activity activity;
 
-    public WiFiP2pBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, MainActivity mainActivity) {
+    public WiFiP2pBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, Activity activity) {
         super();
 
         this.manager = manager;
         this.channel = channel;
-        this.mainActivity = mainActivity;
+        this.activity = activity;
     }
 
     @Override
@@ -32,10 +33,19 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
 
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
             if (manager != null) {
-                manager.requestPeers(channel, mainActivity.peerListListener);
+                manager.requestPeers(channel, (WifiP2pManager.PeerListListener)activity);
             }
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
+            if (manager == null) {
+                return;
+            }
 
+            NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
+            if (networkInfo.isConnected()) {
+                manager.requestConnectionInfo(channel, (WifiP2pManager.ConnectionInfoListener)activity);
+            } else {
+
+            }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
 
         }

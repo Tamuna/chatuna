@@ -8,6 +8,7 @@ import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,9 @@ import ge.edu.freeuni.chatuna.chat.ChatActivity;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
 
-public class MainActivity extends AppCompatActivity implements MainContract.MainView {
+public class MainActivity extends AppCompatActivity implements WifiP2pManager.PeerListListener,
+        WifiP2pManager.ConnectionInfoListener,
+        MainContract.MainView {
 
     private WiFiP2pBroadcastReceiver wiFiP2pBroadcastReceiver;
 
@@ -108,28 +112,6 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
             wifiManager.setWifiEnabled(true);
         }
     }
-
-    WifiP2pManager.PeerListListener peerListListener = new WifiP2pManager.PeerListListener() {
-        @Override
-        public void onPeersAvailable(WifiP2pDeviceList peerList) {
-            if (!peerList.getDeviceList().equals(peers)) {
-                peers.clear();
-                peers.addAll(peerList.getDeviceList());
-
-                Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
-                deviceNames = new String[peerList.getDeviceList().size()];
-                devices = new WifiP2pDevice[peerList.getDeviceList().size()];
-
-                int i = 0;
-                for(WifiP2pDevice device : peerList.getDeviceList()) {
-                    deviceNames[i] = device.deviceName;
-                    Log.d("test", "device " + deviceNames[i]);
-                    devices[i] = device;
-                    i++;
-                }
-            }
-        }
-    };
 
     void handleItemClick(int i) {
         final WifiP2pDevice device = devices[i];
@@ -211,6 +193,38 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
         viewNodata.setVisibility(View.GONE);
         rvHistory.setVisibility(View.VISIBLE);
         adapter.bindData(histories);
+    }
+
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList peerList) {
+        if (!peerList.getDeviceList().equals(peers)) {
+            peers.clear();
+            peers.addAll(peerList.getDeviceList());
+
+            Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
+            deviceNames = new String[peerList.getDeviceList().size()];
+            devices = new WifiP2pDevice[peerList.getDeviceList().size()];
+
+            int i = 0;
+            for(WifiP2pDevice device : peerList.getDeviceList()) {
+                deviceNames[i] = device.deviceName;
+                Log.d("test", "device " + deviceNames[i]);
+                devices[i] = device;
+                i++;
+            }
+        }
+
+    }
+
+    @Override
+    public void onConnectionInfoAvailable(WifiP2pInfo info) {
+        final InetAddress groupOwner = info.groupOwnerAddress;
+
+        if (info.groupFormed && info.isGroupOwner) {
+
+        } else {
+
+        }
     }
 
     class OnMainItemsClickListenerImpl implements CustomToolbar.OnMainItemsClickListener {
