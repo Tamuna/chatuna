@@ -73,4 +73,14 @@ public class ChatRepository implements ChatDataSource {
     public void saveMessage(@NonNull Message message) {
         chatLocalDataSource.saveMessage(message);
     }
+
+    @Override
+    public void deleteHistoryByPeerIds(long hostId, long peerId) {
+        chatLocalDataSource.deleteHistoryByPeerIds(hostId, peerId);
+    }
+
+    @Override
+    public void deleteAll() {
+        chatLocalDataSource.deleteAll();
+    }
 }

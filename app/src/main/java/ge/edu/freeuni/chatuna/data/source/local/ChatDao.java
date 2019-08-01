@@ -19,7 +19,7 @@ public interface ChatDao {
             "AS m_user_id, max(m1.create_date) AS m_date FROM messages AS m1 WHERE m1.sender_user_id " +
             "!= :id or m1.sender_user_id GROUP BY CASE WHEN m1.sender_user_id == :id THEN " +
             "m1.receiver_user_id ELSE m1.sender_user_id END) max_dates WHERE CASE WHEN m.sender_user_id == :id" +
-            " THEN m.receiver_user_id ELSE m.sender_user_id END and max_dates.m_user_id = u.id GROUP " +
+            " THEN m.receiver_user_id ELSE m.sender_user_id END AND max_dates.m_user_id = u.id GROUP " +
             "BY CASE WHEN m.sender_user_id == :id THEN m.receiver_user_id ELSE m.sender_user_id END")
     List<HistoryModel> getHistory(long id);
 
@@ -31,5 +31,12 @@ public interface ChatDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertUser(User user);
+
+    @Query("DELETE FROM messages WHERE sender_user_id == :hostId AND receiver_user_id == :peerId OR " +
+            "sender_user_id == :peerId AND receiver_user_id == :hostId")
+    void deleteHistoryByPeerIds(long hostId, long peerId);
+
+    @Query("DELETE FROM messages")
+    void deleteAll();
 
 }

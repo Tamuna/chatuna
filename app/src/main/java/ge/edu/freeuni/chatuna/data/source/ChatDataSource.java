@@ -1,6 +1,7 @@
 package ge.edu.freeuni.chatuna.data.source;
 
 import androidx.annotation.NonNull;
+import androidx.room.Query;
 
 import java.util.List;
 
@@ -32,4 +33,8 @@ public interface ChatDataSource {
     void saveUser(@NonNull User user, @NonNull InsertUserCallback callback);
 
     void saveMessage(@NonNull Message message);
+
+    void deleteHistoryByPeerIds(long hostId, long peerId);
+
+    void deleteAll();
 }

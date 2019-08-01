@@ -106,4 +106,28 @@ public class ChatLocalDataSource implements ChatDataSource {
 
         appExecutors.diskIO().execute(saveRunnable);
     }
+
+    @Override
+    public void deleteHistoryByPeerIds(long hostId, long peerId) {
+        Runnable deleteRunnable = new Runnable() {
+            @Override
+            public void run() {
+                chatDao.deleteHistoryByPeerIds(hostId, peerId);
+            }
+        };
+
+        appExecutors.diskIO().execute(deleteRunnable);
+    }
+
+    @Override
+    public void deleteAll() {
+        Runnable deleteRunnable = new Runnable() {
+            @Override
+            public void run() {
+                chatDao.deleteAll();
+            }
+        };
+
+        appExecutors.diskIO().execute(deleteRunnable);
+    }
 }
