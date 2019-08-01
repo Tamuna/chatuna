@@ -11,7 +11,7 @@ import ge.edu.freeuni.chatuna.R
 
 class FoundPeersRecyclerAdapter(private val onItemClickedListener: OnItemClickListener) : RecyclerView.Adapter<FoundPeersRecyclerAdapter.PeerViewHolder>() {
     interface OnItemClickListener {
-        fun onPeerSelected(peerName: String)
+        fun onPeerSelected(peerName: Int)
     }
 
     private val data = ArrayList<String>()
@@ -46,7 +46,7 @@ class FoundPeersRecyclerAdapter(private val onItemClickedListener: OnItemClickLi
         }
 
         fun bindData(peerName: String) {
-            itemView.setOnClickListener { onItemClickedListener.onPeerSelected(peerName) }
+            itemView.setOnClickListener { onItemClickedListener.onPeerSelected(adapterPosition) }
             tvPeerName.text = peerName
         }
 

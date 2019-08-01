@@ -42,18 +42,13 @@ import ge.edu.freeuni.chatuna.chat.ChatActivity;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
 
-public class MainActivity extends AppCompatActivity implements WifiP2pManager.PeerListListener,
-        WifiP2pManager.ConnectionInfoListener,
+public class MainActivity extends AppCompatActivity implements
         MainContract.MainView {
 
     private WiFiP2pBroadcastReceiver wiFiP2pBroadcastReceiver;
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
-
-    private List<WifiP2pDevice> peers = new ArrayList<>();
-    private String[] deviceNames;
-    private WifiP2pDevice[] devices;
 
     private final int REQUEST_ACCESS_FINE_LOCATION = 11;
 
@@ -113,24 +108,6 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
         }
     }
 
-    void handleItemClick(int i) {
-        final WifiP2pDevice device = devices[i];
-        WifiP2pConfig config = new WifiP2pConfig();
-        config.deviceAddress = device.deviceAddress;
-
-        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("test", "Connected to " + device.deviceName);
-            }
-
-            @Override
-            public void onFailure(int reason) {
-                Log.d("test", "Not connected to " + device.deviceName);
-            }
-        });
-    }
-
     private boolean hasReadPermissions() {
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -165,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
     @Override
     public void registerReceiver() {
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(this, getMainLooper(), null);
+        channel = manager.initialize(getApplicationContext(), getMainLooper(), null);
         wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver(manager, channel, this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -193,38 +170,6 @@ public class MainActivity extends AppCompatActivity implements WifiP2pManager.Pe
         viewNodata.setVisibility(View.GONE);
         rvHistory.setVisibility(View.VISIBLE);
         adapter.bindData(histories);
-    }
-
-    @Override
-    public void onPeersAvailable(WifiP2pDeviceList peerList) {
-        if (!peerList.getDeviceList().equals(peers)) {
-            peers.clear();
-            peers.addAll(peerList.getDeviceList());
-
-            Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
-            deviceNames = new String[peerList.getDeviceList().size()];
-            devices = new WifiP2pDevice[peerList.getDeviceList().size()];
-
-            int i = 0;
-            for(WifiP2pDevice device : peerList.getDeviceList()) {
-                deviceNames[i] = device.deviceName;
-                Log.d("test", "device " + deviceNames[i]);
-                devices[i] = device;
-                i++;
-            }
-        }
-
-    }
-
-    @Override
-    public void onConnectionInfoAvailable(WifiP2pInfo info) {
-        final InetAddress groupOwner = info.groupOwnerAddress;
-
-        if (info.groupFormed && info.isGroupOwner) {
-
-        } else {
-
-        }
     }
 
     class OnMainItemsClickListenerImpl implements CustomToolbar.OnMainItemsClickListener {

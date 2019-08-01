@@ -1,8 +1,15 @@
 package ge.edu.freeuni.chatuna.chat;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -13,6 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -25,7 +36,8 @@ import ge.edu.freeuni.chatuna.R;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.MessageModel;
 
-public class ChatActivity extends AppCompatActivity implements ChatContract.ChatView {
+public class ChatActivity extends AppCompatActivity implements WifiP2pManager.PeerListListener,
+        WifiP2pManager.ConnectionInfoListener, ChatContract.ChatView {
 
     @BindView(R.id.view_loader)
     ConstraintLayout viewLoader;
@@ -58,6 +70,13 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
     private ChatRecyclerAdapter adapter;
     private ChatContract.ChatPresenter presenter;
 
+    private WifiP2pManager manager;
+    private WifiP2pManager.Channel channel;
+
+    private List<WifiP2pDevice> peers = new ArrayList<>();
+    private String[] deviceNames;
+    private WifiP2pDevice[] devices;
+
     private FoundPeersRecyclerAdapter foundPeersRecyclerAdapter;
 
     private static final String EXTRA_SENDER_NAME = "EXTRA_SENDER_NAME";
@@ -84,6 +103,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
         String senderName = getIntent().getStringExtra(EXTRA_SENDER_NAME);
         ButterKnife.bind(this);
         initView(isHistory);
+
+        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(getApplicationContext(), getMainLooper(), null);
 
         presenter = new ChatPresenterImpl(this, new ChatInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())));
@@ -119,6 +141,41 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
         adapter.bindData(history);
     }
 
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList peerList) {
+        if (!peerList.getDeviceList().equals(peers)) {
+            peers.clear();
+            peers.addAll(peerList.getDeviceList());
+
+            Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
+            deviceNames = new String[peerList.getDeviceList().size()];
+            devices = new WifiP2pDevice[peerList.getDeviceList().size()];
+
+            int i = 0;
+            for(WifiP2pDevice device : peerList.getDeviceList()) {
+                deviceNames[i] = device.deviceName;
+                Log.d("test", "device " + deviceNames[i]);
+                devices[i] = device;
+                i++;
+            }
+
+            List<String> peersList = Arrays.asList(deviceNames);
+            foundPeersRecyclerAdapter.bindData((ArrayList)peersList);
+        }
+
+    }
+
+    @Override
+    public void onConnectionInfoAvailable(WifiP2pInfo info) {
+        final InetAddress groupOwner = info.groupOwnerAddress;
+
+        if (info.groupFormed && info.isGroupOwner) {
+
+        } else {
+
+        }
+    }
+
     class OnSecondaryItemsClickListenerImpl implements CustomToolbar.OnSecondaryItemsClickListener {
 
         @Override
@@ -135,7 +192,22 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
     class OnItemClickListenerImpl implements FoundPeersRecyclerAdapter.OnItemClickListener {
 
         @Override
-        public void onPeerSelected(@NotNull String peerName) {
+        public void onPeerSelected(int i) {
+            final WifiP2pDevice device = devices[i];
+            WifiP2pConfig config = new WifiP2pConfig();
+            config.deviceAddress = device.deviceAddress;
+
+            manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+                @Override
+                public void onSuccess() {
+                    Log.d("test", "Connected to " + device.deviceName);
+                }
+
+                @Override
+                public void onFailure(int reason) {
+                    Log.d("test", "Not connected to " + device.deviceName);
+                }
+            });
             //TODO
         }
     }
