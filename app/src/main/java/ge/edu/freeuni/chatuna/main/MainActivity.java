@@ -1,19 +1,26 @@
 package ge.edu.freeuni.chatuna.main;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
+import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
     private List<WifiP2pDevice> peers = new ArrayList<>();
     private String[] deviceNames;
     private WifiP2pDevice[] devices;
+
+    private final int REQUEST_ACCESS_FINE_LOCATION = 11;
 
     private HistoryRecyclerAdapter adapter;
     private MainContract.MainPresenter presenter;
@@ -91,7 +100,8 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
 
         presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())), this);
-        presenter.start();
+        if(hasReadPermissions())
+            presenter.start();
 
         WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         if (!wifiManager.isWifiEnabled()) {
@@ -106,18 +116,62 @@ public class MainActivity extends AppCompatActivity implements MainContract.Main
                 peers.clear();
                 peers.addAll(peerList.getDeviceList());
 
+                Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
                 deviceNames = new String[peerList.getDeviceList().size()];
                 devices = new WifiP2pDevice[peerList.getDeviceList().size()];
 
                 int i = 0;
                 for(WifiP2pDevice device : peerList.getDeviceList()) {
                     deviceNames[i] = device.deviceName;
+                    Log.d("test", "device " + deviceNames[i]);
                     devices[i] = device;
                     i++;
                 }
             }
         }
     };
+
+    void handleItemClick(int i) {
+        final WifiP2pDevice device = devices[i];
+        WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+
+        manager.connect(channel, config, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("test", "Connected to " + device.deviceName);
+            }
+
+            @Override
+            public void onFailure(int reason) {
+                Log.d("test", "Not connected to " + device.deviceName);
+            }
+        });
+    }
+
+    private boolean hasReadPermissions() {
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                }
+                ActivityCompat.requestPermissions(this,
+                        new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_ACCESS_FINE_LOCATION);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == REQUEST_ACCESS_FINE_LOCATION) {
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            }
+        }
+    }
 
     private void initView() {
         toolbar.setListener(new OnMainItemsClickListenerImpl());
