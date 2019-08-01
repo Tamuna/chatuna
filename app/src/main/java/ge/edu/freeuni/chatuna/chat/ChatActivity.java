@@ -19,6 +19,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import ge.edu.freeuni.chatuna.App;
 import ge.edu.freeuni.chatuna.Injection;
 import ge.edu.freeuni.chatuna.R;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
@@ -38,11 +39,16 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
     @BindView(R.id.et_message_input)
     EditText etMessageInput;
 
+    @BindView(R.id.rv_found_peers)
+    RecyclerView rvFoundPeers;
+
     @OnClick(R.id.btn_send)
     void onSendClick() {
         String message = etMessageInput.getText().toString();
+        etMessageInput.setText("");
         if (!message.isEmpty()) {
-            presenter.sendMessage(new MessageModel(message, new Date(), "tamuna", true));
+            presenter.sendMessage(new MessageModel(message, new Date(), App.username, true));
+            adapter.bindSingleItem(new MessageModel(message, new Date(), App.username, true));
         }
     }
 
@@ -51,6 +57,8 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
 
     private ChatRecyclerAdapter adapter;
     private ChatContract.ChatPresenter presenter;
+
+    private FoundPeersRecyclerAdapter foundPeersRecyclerAdapter;
 
     private static final String EXTRA_SENDER_NAME = "EXTRA_SENDER_NAME";
     private static final String EXTRA_IS_HISTORY = "EXTRA_IS_HISTORY";
@@ -88,6 +96,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
     private void initView(boolean isHistory) {
         toolbar.setListener(new OnSecondaryItemsClickListenerImpl());
         adapter = new ChatRecyclerAdapter();
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
         rvMessages.setLayoutManager(layoutManager);
@@ -95,6 +104,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
         if (isHistory) {
             layoutMessageInput.setVisibility(View.GONE);
         }
+        foundPeersRecyclerAdapter = new FoundPeersRecyclerAdapter(new OnItemClickListenerImpl());
+        rvFoundPeers.setLayoutManager(new LinearLayoutManager(this));
+        rvFoundPeers.setAdapter(foundPeersRecyclerAdapter);
     }
 
     @Override
@@ -116,7 +128,15 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.Chat
 
         @Override
         public void onDeleteClick() {
-            //TOOD
+            //TODO
+        }
+    }
+
+    class OnItemClickListenerImpl implements FoundPeersRecyclerAdapter.OnItemClickListener {
+
+        @Override
+        public void onPeerSelected(@NotNull String peerName) {
+            //TODO
         }
     }
 }
