@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements
         ButterKnife.bind(this);
         initView();
 
+        App.username = "Elene";
+
         presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())), this);
         if (hasReadPermissions())

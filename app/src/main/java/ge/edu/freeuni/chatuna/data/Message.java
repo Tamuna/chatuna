@@ -18,21 +18,26 @@ public class Message {
     @ColumnInfo(name = "create_date")
     private Date createDate;
 
-    @ColumnInfo(name = "user_id")
-    private long userId;
+    @ColumnInfo(name = "sender_user_id")
+    private long senderUserId;
+
+    @ColumnInfo(name = "receiver_user_id")
+    private long receiverUserId;
 
     @Ignore
-    public Message(String messageText, Date createDate, long userId) {
+    public Message(String messageText, Date createDate, long senderUserId, long receiverUserId) {
         setMessageText(messageText);
         setCreateDate(createDate);
-        setUserId(userId);
+        setSenderUserId(senderUserId);
+        setReceiverUserId(receiverUserId);
     }
 
-    public Message(long id, String messageText, Date createDate, long userId) {
+    public Message(long id, String messageText, Date createDate, long senderUserId, long receiverUserId) {
         setId(id);
         setMessageText(messageText);
         setCreateDate(createDate);
-        setUserId(userId);
+        setSenderUserId(senderUserId);
+        setReceiverUserId(receiverUserId);
     }
 
     public long getId() {
@@ -59,11 +64,19 @@ public class Message {
         this.createDate = createDate;
     }
 
-    public long getUserId() {
-        return userId;
+    public long getSenderUserId() {
+        return senderUserId;
     }
 
-    public void setUserId(long userId) {
-        this.userId = userId;
+    public void setSenderUserId(long userId) {
+        this.senderUserId = userId;
+    }
+
+    public long getReceiverUserId() {
+        return receiverUserId;
+    }
+
+    public void setReceiverUserId(long receiverUserId) {
+        this.receiverUserId = receiverUserId;
     }
 }

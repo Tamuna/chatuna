@@ -35,7 +35,7 @@ class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContr
     override fun sendMessage(message: MessageModel, onFinishListener: ChatContract.ChatInteractor.OnFinishListener) {
         chatRepository.getUserIdByName(message.senderName, object : ChatDataSource.GetIdCallback {
             override fun onIdLoaded(id: Long) {
-                chatRepository.saveMessage(Message(message.messageText, message.createDate, id))
+                chatRepository.saveMessage(Message(message.messageText, message.createDate, id, id))
             }
 
             override fun onDataNotAvailable() {
