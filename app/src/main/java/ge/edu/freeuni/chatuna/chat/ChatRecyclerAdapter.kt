@@ -1,8 +1,10 @@
 package ge.edu.freeuni.chatuna.chat
 
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -44,11 +46,21 @@ class ChatRecyclerAdapter : RecyclerView.Adapter<ChatRecyclerAdapter.ChatViewHol
         @BindView(R.id.tv_message)
         lateinit var tvMessage: TextView
 
+        @BindView(R.id.layput_message_holder)
+        lateinit var layoutMessageHolder: LinearLayout
+
         init {
             ButterKnife.bind(this, itemView)
         }
 
         fun bindView(message: MessageModel) {
+            if (message.isSent) {
+                tvMessage.background = itemView.context.getDrawable(R.drawable.shape_sent_message)
+                layoutMessageHolder.gravity = Gravity.END
+            } else {
+                tvMessage.background = itemView.context.getDrawable(R.drawable.shape_received_message)
+                layoutMessageHolder.gravity = Gravity.START
+            }
             tvMessage.text = message.messageText
             tvDate.text = message.createDate.toString()
         }

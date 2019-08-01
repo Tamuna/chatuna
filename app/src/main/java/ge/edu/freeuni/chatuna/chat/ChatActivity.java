@@ -12,7 +12,6 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
@@ -85,10 +84,12 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
 
     private List<WifiP2pDevice> peers = new ArrayList<>();
     private ArrayList<String> deviceNames;
+
     private WifiP2pDevice[] devices;
 
     private ServerClass serverClass;
     private ClientClass clientClass;
+
     private SendReceive sendReceive;
 
     static final int MESSAGE_READ = 1;
@@ -102,9 +103,14 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
             switch (msg.what) {
                 case MESSAGE_READ:
                     byte[] readBuff = (byte[]) msg.obj;
-                    String tmpMsg = new String(readBuff, 0, msg.arg1);
-                    adapter.bindSingleItem(new MessageModel(tmpMsg, new Date(), "Tamuna", false));
-                    Log.d("test", tmpMsg);
+                    String message = new String(readBuff, 0, msg.arg1);
+                    adapter.bindSingleItem(new MessageModel(message, new Date(), "Tamuna", false));
+                    presenter.sendMessage(new MessageModel(message, new Date(), "Tamuna", false));
+                    if (rvFoundPeers.getVisibility() == View.VISIBLE) {
+                        rvFoundPeers.setVisibility(View.GONE);
+                        rvMessages.setVisibility(View.VISIBLE);
+                        layoutMessageInput.setVisibility(View.VISIBLE);
+                    }
                     break;
             }
             return false;
@@ -157,14 +163,11 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         @Override
         public void run() {
             try {
-                Log.d("test", "server start running");
                 serverSocket = new ServerSocket(8888);
                 socket = serverSocket.accept();
-                Log.d("test", "server sr");
                 sendReceive = new SendReceive(socket);
                 sendReceive.start();
             } catch (IOException e) {
-                Log.d("test_exce",e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -182,15 +185,12 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
 
         @Override
         public void run() {
-            Log.d("test", "client start running");
             try {
                 socket.connect(new InetSocketAddress(hostAdd, 8888), 500);
-                Log.d("test", "client sr" + hostAdd);
                 sendReceive = new SendReceive(socket);
                 sendReceive.start();
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d("test_exce",e.getMessage());
             }
         }
     }
@@ -229,6 +229,8 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         presenter.start();
         if (isHistory) {
             presenter.loadChatHistory(senderName);
+            rvFoundPeers.setVisibility(View.GONE);
+            rvMessages.setVisibility(View.VISIBLE);
         }
         viewLoader.setVisibility(View.VISIBLE);
         discoverPeers();
@@ -239,7 +241,6 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
             @Override
             public void onSuccess() {
-                Log.d("test", "Discovery Started");
             }
 
             @Override
@@ -281,14 +282,12 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
             peers.clear();
             peers.addAll(peerList.getDeviceList());
 
-            Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
             deviceNames = new ArrayList<>();
             devices = new WifiP2pDevice[peerList.getDeviceList().size()];
 
             int i = 0;
             for (WifiP2pDevice device : peerList.getDeviceList()) {
                 deviceNames.add(device.deviceName);
-                Log.d("test", "device " + deviceNames.get(i));
                 devices[i] = device;
                 i++;
             }
@@ -304,11 +303,9 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         final InetAddress groupOwner = info.groupOwnerAddress;
 
         if (info.groupFormed && info.isGroupOwner) {
-            Log.d("test", "Server Class created");
             serverClass = new ServerClass();
             serverClass.start();
         } else {
-            Log.d("test", "Client Class created");
             clientClass = new ClientClass(groupOwner);
             clientClass.start();
         }
@@ -361,12 +358,10 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
                     layoutMessageInput.setVisibility(View.VISIBLE);
                     rvMessages.setVisibility(View.VISIBLE);
                     rvFoundPeers.setVisibility(View.GONE);
-                    Log.d("test", "Connected to " + device.deviceName);
                 }
 
                 @Override
                 public void onFailure(int reason) {
-                    Log.d("test", "Not connected to " + device.deviceName);
                 }
             });
             //TODO
