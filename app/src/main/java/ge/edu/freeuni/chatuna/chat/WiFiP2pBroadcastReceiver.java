@@ -5,8 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.NetworkInfo;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.util.Log;
+
+import ge.edu.freeuni.chatuna.App;
 
 public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
 
@@ -15,6 +18,7 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
     private Activity activity;
+    private ChatContract.ChatView.OnWifiDirectNameChanged listener;
 
     public WiFiP2pBroadcastReceiver(WifiP2pManager manager, WifiP2pManager.Channel channel, Activity activity) {
         super();
@@ -47,7 +51,15 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
 
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-
+            WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
+            String name = device.deviceName;
+            App.username = name;
+            Log.d("test", App.username);
+            listener.onNameChanged();
         }
+    }
+
+    void setOnWifiDirectNameChangedListener(ChatContract.ChatView.OnWifiDirectNameChanged listener) {
+        this.listener = listener;
     }
 }

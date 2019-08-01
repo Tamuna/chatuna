@@ -9,11 +9,6 @@ class MainPresenterImpl(
 
     override fun start() {
         getHistory()
-        handleCurrentUser()
-    }
-
-    private fun handleCurrentUser() {
-        interactor.handleCurrentUser()
     }
 
     override fun getHistory() {

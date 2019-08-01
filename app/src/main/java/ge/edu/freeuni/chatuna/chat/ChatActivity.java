@@ -44,7 +44,8 @@ import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.MessageModel;
 
 public class ChatActivity extends AppCompatActivity implements WifiP2pManager.PeerListListener,
-        WifiP2pManager.ConnectionInfoListener, ChatContract.ChatView {
+        WifiP2pManager.ConnectionInfoListener, ChatContract.ChatView,
+        ChatContract.ChatView.OnWifiDirectNameChanged {
 
     @BindView(R.id.view_loader)
     ConstraintLayout viewLoader;
@@ -116,6 +117,11 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
             return false;
         }
     });
+
+    @Override
+    public void onNameChanged() {
+        presenter.handleCurrentUser();
+    }
 
     public class SendReceive extends Thread {
         private Socket socket;
@@ -316,6 +322,7 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         channel = manager.initialize(getApplicationContext(), getMainLooper(), null);
         wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver(manager, channel, this);
+        wiFiP2pBroadcastReceiver.setOnWifiDirectNameChangedListener(this);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
         intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);

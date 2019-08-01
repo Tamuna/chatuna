@@ -10,6 +10,10 @@ class ChatPresenterImpl(
         view.registerReceiver()
     }
 
+    override fun handleCurrentUser() {
+        interactor.handleCurrentUser()
+    }
+
     override fun loadChatHistory(senderName: String) {
         interactor.loadHistory(senderName, OnFinishListenerImpl())
     }

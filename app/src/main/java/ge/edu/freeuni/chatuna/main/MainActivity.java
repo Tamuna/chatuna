@@ -73,7 +73,6 @@ public class MainActivity extends AppCompatActivity implements
 
         ButterKnife.bind(this);
         initView();
-        App.username = "tamuna";
 
         presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())), this);

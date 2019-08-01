@@ -49,21 +49,4 @@ public class MainInteractorImpl implements MainContract.MainInteractor {
         });
 
     }
-
-    @Override
-    public void handleCurrentUser() {
-        chatRepository.getUserIdByName(App.username, new ChatDataSource.GetIdCallback() {
-            @Override
-            public void onIdLoaded(long id) {
-                if (id <= 0) {
-                    chatRepository.saveUser(new User(App.username), id1 -> Log.d("", ""));
-                }
-            }
-
-            @Override
-            public void onDataNotAvailable() {
-
-            }
-        });
-    }
 }
