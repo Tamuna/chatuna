@@ -6,11 +6,14 @@ interface ChatContract {
     interface ChatView {
         fun sendMessage(messsage: MessageModel)
         fun displayHistory(history: List<MessageModel>)
+        fun registerReceiver()
+        fun unregisterReceiver()
     }
 
     interface ChatPresenter {
         fun sendMessage(message: MessageModel)
         fun loadChatHistory(senderName: String)
+        fun start()
     }
 
     interface ChatInteractor {

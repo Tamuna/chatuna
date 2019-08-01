@@ -10,7 +10,6 @@ class MainPresenterImpl(
     override fun start() {
         getHistory()
         handleCurrentUser()
-        view.registerReceiver()
     }
 
     private fun handleCurrentUser() {

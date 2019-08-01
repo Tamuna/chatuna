@@ -2,20 +2,13 @@ package ge.edu.freeuni.chatuna.main;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pDeviceList;
-import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,8 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -44,8 +35,6 @@ import ge.edu.freeuni.chatuna.model.HistoryModel;
 
 public class MainActivity extends AppCompatActivity implements
         MainContract.MainView {
-
-    private WiFiP2pBroadcastReceiver wiFiP2pBroadcastReceiver;
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
@@ -74,17 +63,6 @@ public class MainActivity extends AppCompatActivity implements
 
     @OnClick(R.id.layoutMenuHistory)
     void onHistoryMenuItemClick() {
-        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("test", "Discovery Started");
-            }
-
-            @Override
-            public void onFailure(int i) {
-
-            }
-        });
         navigationView.closeDrawer(Gravity.LEFT);
     }
 
@@ -99,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements
 
         presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())), this);
-        if(hasReadPermissions())
+        if (hasReadPermissions())
             presenter.start();
 
         WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -109,14 +87,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private boolean hasReadPermissions() {
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if(shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 }
                 ActivityCompat.requestPermissions(this,
-                        new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         REQUEST_ACCESS_FINE_LOCATION);
             }
             return false;
@@ -126,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode == REQUEST_ACCESS_FINE_LOCATION) {
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode == REQUEST_ACCESS_FINE_LOCATION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             }
         }
     }
@@ -139,25 +117,7 @@ public class MainActivity extends AppCompatActivity implements
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
     }
 
-    @Override
-    public void registerReceiver() {
-        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-        channel = manager.initialize(getApplicationContext(), getMainLooper(), null);
-        wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver(manager, channel, this);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
-        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-        registerReceiver(wiFiP2pBroadcastReceiver, intentFilter);
-    }
 
-    @Override
-    public void unregisterReceiver() {
-        if (wiFiP2pBroadcastReceiver == null) {
-            unregisterReceiver(wiFiP2pBroadcastReceiver);
-        }
-    }
 
     @Override
     public void onNoDataLoaded() {

@@ -3,12 +3,15 @@ package ge.edu.freeuni.chatuna.chat;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -20,10 +23,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Array;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -33,6 +40,7 @@ import butterknife.OnClick;
 import ge.edu.freeuni.chatuna.App;
 import ge.edu.freeuni.chatuna.Injection;
 import ge.edu.freeuni.chatuna.R;
+import ge.edu.freeuni.chatuna.SendReceiveHelper;
 import ge.edu.freeuni.chatuna.component.CustomToolbar;
 import ge.edu.freeuni.chatuna.model.MessageModel;
 
@@ -54,6 +62,9 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
     @BindView(R.id.rv_found_peers)
     RecyclerView rvFoundPeers;
 
+    @BindView(R.id.layout_message_input)
+    ConstraintLayout layoutMessageInput;
+
     @OnClick(R.id.btn_send)
     void onSendClick() {
         String message = etMessageInput.getText().toString();
@@ -62,22 +73,128 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
             presenter.sendMessage(new MessageModel(message, new Date(), App.username, true));
             adapter.bindSingleItem(new MessageModel(message, new Date(), App.username, true));
         }
+        sendReceive.write(message.getBytes());
     }
-
-    @BindView(R.id.layout_message_input)
-    ConstraintLayout layoutMessageInput;
 
     private ChatRecyclerAdapter adapter;
     private ChatContract.ChatPresenter presenter;
 
+    private WiFiP2pBroadcastReceiver wiFiP2pBroadcastReceiver;
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
 
     private List<WifiP2pDevice> peers = new ArrayList<>();
-    private String[] deviceNames;
+    private ArrayList<String> deviceNames;
     private WifiP2pDevice[] devices;
 
+    private ServerClass serverClass;
+    private ClientClass clientClass;
+    private SendReceive sendReceive;
+
+    static final int MESSAGE_READ = 1;
+
     private FoundPeersRecyclerAdapter foundPeersRecyclerAdapter;
+
+    Handler handler = new Handler(new Handler.Callback() {
+
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case MESSAGE_READ:
+                    byte[] readBuff = (byte[]) msg.obj;
+                    String tmpMsg = new String(readBuff, 0, msg.arg1);
+                    adapter.bindSingleItem(new MessageModel(tmpMsg, new Date(), "Tamuna", false));
+                    Log.d("test", tmpMsg);
+                    break;
+            }
+            return false;
+        }
+    });
+
+    public class SendReceive extends Thread {
+        private Socket socket;
+        private InputStream inputStream;
+        private OutputStream outputStream;
+
+        public SendReceive(Socket socket) {
+            this.socket = socket;
+            try {
+                inputStream = socket.getInputStream();
+                outputStream = socket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void run() {
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            while (socket != null) {
+                try {
+                    bytes = inputStream.read(buffer);
+                    if (bytes > 0) {
+                        handler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void write(byte[] bytes) {
+            SendReceiveHelper helper = new SendReceiveHelper(outputStream, bytes);
+            helper.start();
+        }
+    }
+
+
+    public class ServerClass extends Thread {
+        private Socket socket;
+        private ServerSocket serverSocket;
+
+        @Override
+        public void run() {
+            try {
+                Log.d("test", "server start running");
+                serverSocket = new ServerSocket(8888);
+                socket = serverSocket.accept();
+                Log.d("test", "server sr");
+                sendReceive = new SendReceive(socket);
+                sendReceive.start();
+            } catch (IOException e) {
+                Log.d("test_exce",e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public class ClientClass extends Thread {
+
+        private Socket socket;
+        private String hostAdd;
+
+        public ClientClass(InetAddress hostAddress) {
+            hostAdd = hostAddress.getHostAddress();
+            socket = new Socket();
+        }
+
+        @Override
+        public void run() {
+            Log.d("test", "client start running");
+            try {
+                socket.connect(new InetSocketAddress(hostAdd, 8888), 500);
+                Log.d("test", "client sr" + hostAdd);
+                sendReceive = new SendReceive(socket);
+                sendReceive.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("test_exce",e.getMessage());
+            }
+        }
+    }
+
 
     private static final String EXTRA_SENDER_NAME = "EXTRA_SENDER_NAME";
     private static final String EXTRA_IS_HISTORY = "EXTRA_IS_HISTORY";
@@ -109,10 +226,27 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
 
         presenter = new ChatPresenterImpl(this, new ChatInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())));
+        presenter.start();
         if (isHistory) {
             presenter.loadChatHistory(senderName);
         }
+        viewLoader.setVisibility(View.VISIBLE);
+        discoverPeers();
 
+    }
+
+    private void discoverPeers() {
+        manager.discoverPeers(channel, new WifiP2pManager.ActionListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("test", "Discovery Started");
+            }
+
+            @Override
+            public void onFailure(int i) {
+
+            }
+        });
     }
 
     private void initView(boolean isHistory) {
@@ -148,19 +282,19 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
             peers.addAll(peerList.getDeviceList());
 
             Log.d("test", "size " + Integer.toString(peerList.getDeviceList().size()));
-            deviceNames = new String[peerList.getDeviceList().size()];
+            deviceNames = new ArrayList<>();
             devices = new WifiP2pDevice[peerList.getDeviceList().size()];
 
             int i = 0;
-            for(WifiP2pDevice device : peerList.getDeviceList()) {
-                deviceNames[i] = device.deviceName;
-                Log.d("test", "device " + deviceNames[i]);
+            for (WifiP2pDevice device : peerList.getDeviceList()) {
+                deviceNames.add(device.deviceName);
+                Log.d("test", "device " + deviceNames.get(i));
                 devices[i] = device;
                 i++;
             }
 
-            List<String> peersList = Arrays.asList(deviceNames);
-            foundPeersRecyclerAdapter.bindData((ArrayList)peersList);
+            foundPeersRecyclerAdapter.bindData(deviceNames);
+            viewLoader.setVisibility(View.GONE);
         }
 
     }
@@ -170,9 +304,33 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         final InetAddress groupOwner = info.groupOwnerAddress;
 
         if (info.groupFormed && info.isGroupOwner) {
-
+            Log.d("test", "Server Class created");
+            serverClass = new ServerClass();
+            serverClass.start();
         } else {
+            Log.d("test", "Client Class created");
+            clientClass = new ClientClass(groupOwner);
+            clientClass.start();
+        }
+    }
 
+    @Override
+    public void registerReceiver() {
+        manager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+        channel = manager.initialize(getApplicationContext(), getMainLooper(), null);
+        wiFiP2pBroadcastReceiver = new WiFiP2pBroadcastReceiver(manager, channel, this);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
+        intentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        registerReceiver(wiFiP2pBroadcastReceiver, intentFilter);
+    }
+
+    @Override
+    public void unregisterReceiver() {
+        if (wiFiP2pBroadcastReceiver == null) {
+            unregisterReceiver(wiFiP2pBroadcastReceiver);
         }
     }
 
@@ -200,6 +358,9 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
             manager.connect(channel, config, new WifiP2pManager.ActionListener() {
                 @Override
                 public void onSuccess() {
+                    layoutMessageInput.setVisibility(View.VISIBLE);
+                    rvMessages.setVisibility(View.VISIBLE);
+                    rvFoundPeers.setVisibility(View.GONE);
                     Log.d("test", "Connected to " + device.deviceName);
                 }
 

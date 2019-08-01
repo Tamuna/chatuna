@@ -1,4 +1,4 @@
-package ge.edu.freeuni.chatuna.main;
+package ge.edu.freeuni.chatuna.chat;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -42,6 +42,7 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
 
             NetworkInfo networkInfo = intent.getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
             if (networkInfo.isConnected()) {
+                Log.d("test", "connected network info");
                 manager.requestConnectionInfo(channel, (WifiP2pManager.ConnectionInfoListener)activity);
             } else {
 

@@ -2,12 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/dark_blue"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/tv_peer_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:padding="10dp"
-        android:text="TextView" />
+        android:text="TextView"
+        android:textColor="@color/white" />
 </LinearLayout>

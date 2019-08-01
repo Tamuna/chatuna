@@ -6,6 +6,10 @@ class ChatPresenterImpl(
         private val view: ChatContract.ChatView,
         private val interactor: ChatContract.ChatInteractor
 ) : ChatContract.ChatPresenter {
+    override fun start() {
+        view.registerReceiver()
+    }
+
     override fun loadChatHistory(senderName: String) {
         interactor.loadHistory(senderName, OnFinishListenerImpl())
     }
