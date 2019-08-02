@@ -9,6 +9,8 @@ import butterknife.BindView
 import butterknife.ButterKnife
 import ge.edu.freeuni.chatuna.R
 import ge.edu.freeuni.chatuna.model.HistoryModel
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class HistoryRecyclerAdapter(private val onItemClickedListener: OnItemClickedListener) : RecyclerView.Adapter<HistoryRecyclerAdapter.HistoryViewHolder>() {
@@ -52,7 +54,8 @@ class HistoryRecyclerAdapter(private val onItemClickedListener: OnItemClickedLis
         }
 
         fun bindData(data: HistoryModel) {
-            tvLastMessageDate.text = data.date
+            val date = Date(data.date.toLong()).toString().substring(0, 19)
+            tvLastMessageDate.text = date
             tvMessageCount.text = data.messageCount.toString()
             tvPhoneName.text = data.senderName
 

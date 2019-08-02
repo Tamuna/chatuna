@@ -62,7 +62,7 @@ class ChatRecyclerAdapter : RecyclerView.Adapter<ChatRecyclerAdapter.ChatViewHol
                 layoutMessageHolder.gravity = Gravity.START
             }
             tvMessage.text = message.messageText
-            tvDate.text = message.createDate.toString()
+            tvDate.text = message.createDate.toString().substring(0, 19)
         }
     }
 }

@@ -72,8 +72,11 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         if (!message.isEmpty()) {
             presenter.sendMessage(new MessageModel(message, new Date(), App.username, true));
             adapter.bindSingleItem(new MessageModel(message, new Date(), App.username, true));
+            rvMessages.scrollToPosition(adapter.getItemCount() - 1);
         }
-        sendReceive.write(message.getBytes());
+        if (sendReceive != null) {
+            sendReceive.write(message.getBytes());
+        }
     }
 
     private ChatRecyclerAdapter adapter;
@@ -106,6 +109,7 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
                     byte[] readBuff = (byte[]) msg.obj;
                     String message = new String(readBuff, 0, msg.arg1);
                     adapter.bindSingleItem(new MessageModel(message, new Date(), "Tamuna", false));
+                    rvMessages.scrollToPosition(adapter.getItemCount() - 1);
                     presenter.sendMessage(new MessageModel(message, new Date(), "Tamuna", false));
                     if (rvFoundPeers.getVisibility() == View.VISIBLE) {
                         rvFoundPeers.setVisibility(View.GONE);
@@ -192,7 +196,7 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         @Override
         public void run() {
             try {
-                socket.connect(new InetSocketAddress(hostAdd, 8888), 500);
+                socket.connect(new InetSocketAddress(hostAdd, 8888), 1000);
                 sendReceive = new SendReceive(socket);
                 sendReceive.start();
             } catch (IOException e) {
