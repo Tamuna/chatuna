@@ -10,6 +10,7 @@ import java.util.List;
 import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
+import ge.edu.freeuni.chatuna.model.MessageModel;
 
 @Dao
 public interface ChatDao {
@@ -23,6 +24,11 @@ public interface ChatDao {
             "BY CASE WHEN m.sender_user_id == :id THEN m.receiver_user_id ELSE m.sender_user_id END")
     List<HistoryModel> getHistory(long id);
 
+    @Query("SELECT m.message_text AS messageText, m.create_date AS createDate, null AS senderName," +
+            " CASE WHEN m.sender_user_id == :userId THEN 0 ELSE 1 END AS isSent FROM messages m " +
+            "ORDER BY m.create_date")
+    List<MessageModel> getSingleChatById(long userId);
+
     @Query("SELECT id FROM users WHERE :name = name")
     long getUserIdByName(String name);
 
@@ -32,9 +38,8 @@ public interface ChatDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertUser(User user);
 
-    @Query("DELETE FROM messages WHERE sender_user_id == :hostId AND receiver_user_id == :peerId OR " +
-            "sender_user_id == :peerId AND receiver_user_id == :hostId")
-    void deleteHistoryByPeerIds(long hostId, long peerId);
+    @Query("DELETE FROM messages WHERE sender_user_id == :peerId OR receiver_user_id == :peerId")
+    void deleteHistoryByPeerIds(long peerId);
 
     @Query("DELETE FROM messages")
     void deleteAll();

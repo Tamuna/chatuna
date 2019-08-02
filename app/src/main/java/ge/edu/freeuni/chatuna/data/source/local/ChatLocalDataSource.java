@@ -8,6 +8,7 @@ import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.data.source.ChatDataSource;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
+import ge.edu.freeuni.chatuna.model.MessageModel;
 import ge.edu.freeuni.chatuna.utils.AppExecutors;
 
 public class ChatLocalDataSource implements ChatDataSource {
@@ -45,6 +46,28 @@ public class ChatLocalDataSource implements ChatDataSource {
                     @Override
                     public void run() {
                         callback.onIdLoaded(id);
+                    }
+                });
+            }
+        };
+
+        appExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
+    public void getSingleChatById(long userId, GetSingleChatCallback callback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                final List<MessageModel> chat = chatDao.getSingleChatById(userId);
+                appExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (chat.isEmpty()) {
+                            callback.onDataNotAvailable();
+                        } else {
+                            callback.onSingleChatLoaded(chat);
+                        }
                     }
                 });
             }
@@ -108,25 +131,15 @@ public class ChatLocalDataSource implements ChatDataSource {
     }
 
     @Override
-    public void deleteHistoryByPeerIds(long hostId, long peerId) {
-        Runnable deleteRunnable = new Runnable() {
-            @Override
-            public void run() {
-                chatDao.deleteHistoryByPeerIds(hostId, peerId);
-            }
-        };
+    public void deleteHistoryByPeerIds(long peerId) {
+        Runnable deleteRunnable = () -> chatDao.deleteHistoryByPeerIds(peerId);
 
         appExecutors.diskIO().execute(deleteRunnable);
     }
 
     @Override
     public void deleteAll() {
-        Runnable deleteRunnable = new Runnable() {
-            @Override
-            public void run() {
-                chatDao.deleteAll();
-            }
-        };
+        Runnable deleteRunnable = () -> chatDao.deleteAll();
 
         appExecutors.diskIO().execute(deleteRunnable);
     }

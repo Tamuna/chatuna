@@ -5,7 +5,7 @@ import java.util.*
 data class MessageModel(
         val messageText: String,
         val createDate: Date,
-        val senderName: String,
+        var senderName: String?,
         val isSent: Boolean
 )
 

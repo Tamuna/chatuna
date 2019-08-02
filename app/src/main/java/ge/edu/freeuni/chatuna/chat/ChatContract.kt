@@ -8,6 +8,7 @@ interface ChatContract {
         fun displayHistory(history: List<MessageModel>)
         fun registerReceiver()
         fun unregisterReceiver()
+        fun redirectToMain()
 
         interface OnWifiDirectNameChanged {
             fun onNameChanged()
@@ -15,20 +16,23 @@ interface ChatContract {
     }
 
     interface ChatPresenter {
-        fun sendMessage(message: MessageModel)
+        fun sendMessage(message: MessageModel, senderName: String)
         fun loadChatHistory(senderName: String)
         fun start()
         fun handleCurrentUser()
+        fun deleteHistory(name: String)
     }
 
     interface ChatInteractor {
         interface OnFinishListener {
             fun onMessageSent(message: MessageModel)
             fun onHistoryLoaded(history: List<MessageModel>)
+            fun onHistoryDeleted()
         }
 
-        fun sendMessage(message: MessageModel, onFinishListener: OnFinishListener)
+        fun sendMessage(message: MessageModel, onFinishListener: OnFinishListener, receiverName: String)
         fun loadHistory(senderName: String, onFinishListener: OnFinishListener)
         fun handleCurrentUser()
+        fun deleteMessage(senderName: String, onFinishListener: OnFinishListener)
     }
 }

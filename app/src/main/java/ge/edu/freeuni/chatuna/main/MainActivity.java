@@ -1,9 +1,9 @@
 package ge.edu.freeuni.chatuna.main;
 
 import android.Manifest;
-import android.content.Context;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.wifi.WifiManager;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -26,7 +26,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import ge.edu.freeuni.chatuna.App;
 import ge.edu.freeuni.chatuna.Injection;
 import ge.edu.freeuni.chatuna.R;
 import ge.edu.freeuni.chatuna.chat.ChatActivity;
@@ -55,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements
     @BindView(R.id.view_nodata)
     ConstraintLayout viewNodata;
 
+    public static void start(Activity activity) {
+        Intent intent = new Intent(activity, MainActivity.class);
+        activity.startActivity(intent);
+    }
+
     @OnClick(R.id.layoutMenuChat)
     void onChatMenuItemClick() {
         navigationView.closeDrawer(Gravity.LEFT);
@@ -74,16 +78,10 @@ public class MainActivity extends AppCompatActivity implements
         ButterKnife.bind(this);
         initView();
 
-        App.username = "Elene";
-
         presenter = new MainPresenterImpl(new MainInteractorImpl(Injection.
                 provideChatRepository(this.getApplicationContext())), this);
-        if (hasReadPermissions())
+        if (hasReadPermissions()) {
             presenter.start();
-
-        WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if (!wifiManager.isWifiEnabled()) {
-            wifiManager.setWifiEnabled(true);
         }
     }
 
@@ -117,7 +115,6 @@ public class MainActivity extends AppCompatActivity implements
         rvHistory.setAdapter(adapter);
         rvHistory.setLayoutManager(new LinearLayoutManager(this));
     }
-
 
 
     @Override

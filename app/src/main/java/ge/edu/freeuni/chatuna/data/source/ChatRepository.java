@@ -8,6 +8,7 @@ import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.data.source.local.ChatLocalDataSource;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
+import ge.edu.freeuni.chatuna.model.MessageModel;
 
 public class ChatRepository implements ChatDataSource {
     private volatile static ChatRepository INSTANCE = null;
@@ -45,6 +46,21 @@ public class ChatRepository implements ChatDataSource {
     }
 
     @Override
+    public void getSingleChatById(long userId, GetSingleChatCallback callback) {
+        chatLocalDataSource.getSingleChatById(userId, new GetSingleChatCallback() {
+            @Override
+            public void onSingleChatLoaded(List<MessageModel> chat) {
+                callback.onSingleChatLoaded(chat);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
     public void getHistory(long id, @NonNull GetHistoryCallback callback) {
         chatLocalDataSource.getHistory(id, new GetHistoryCallback() {
             @Override
@@ -61,12 +77,7 @@ public class ChatRepository implements ChatDataSource {
 
     @Override
     public void saveUser(@NonNull final User user, @NonNull final InsertUserCallback callback) {
-        chatLocalDataSource.saveUser(user, new InsertUserCallback() {
-            @Override
-            public void onUserInserted(long id) {
-                callback.onUserInserted(id);
-            }
-        });
+        chatLocalDataSource.saveUser(user, id -> callback.onUserInserted(id));
     }
 
     @Override
@@ -75,8 +86,8 @@ public class ChatRepository implements ChatDataSource {
     }
 
     @Override
-    public void deleteHistoryByPeerIds(long hostId, long peerId) {
-        chatLocalDataSource.deleteHistoryByPeerIds(hostId, peerId);
+    public void deleteHistoryByPeerIds(long peerId) {
+        chatLocalDataSource.deleteHistoryByPeerIds(peerId);
     }
 
     @Override
