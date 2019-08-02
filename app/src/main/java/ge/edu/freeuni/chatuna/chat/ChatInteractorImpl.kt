@@ -23,8 +23,8 @@ class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContr
     }
 
     @Override
-    override fun handleCurrentUser() {
-        chatRepository.getUserIdByName(App.username, object : ChatDataSource.GetIdCallback {
+    override fun handleCurrentUser(username: String) {
+        chatRepository.getUserIdByName(username, object : ChatDataSource.GetIdCallback {
             override fun onIdLoaded(id: Long) {
                 if (id <= 0) {
                     chatRepository.saveUser(User(App.username), object : ChatDataSource.InsertUserCallback {

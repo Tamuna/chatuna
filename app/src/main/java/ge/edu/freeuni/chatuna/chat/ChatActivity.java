@@ -127,7 +127,7 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
 
     @Override
     public void onNameChanged() {
-        presenter.handleCurrentUser();
+        presenter.handleCurrentUser(App.username);
     }
 
     @Override
@@ -194,13 +194,13 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         }
 
         public void closeSocketAndKillThisThread() {
-            if(socket!=null && !socket.isClosed()) {
+            if (socket != null && !socket.isClosed()) {
                 try {
                     socket.close();
                 } catch (IOException e) {
                 }
             }
-            if(!this.isInterrupted()) {
+            if (!this.isInterrupted()) {
                 this.interrupt();
             }
         }
@@ -229,13 +229,13 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         }
 
         public void closeSocketAndKillThisThread() {
-            if(socket!=null && !socket.isClosed()) {
+            if (socket != null && !socket.isClosed()) {
                 try {
                     socket.close();
                 } catch (IOException e) {
                 }
             }
-            if(!this.isInterrupted()) {
+            if (!this.isInterrupted()) {
                 this.interrupt();
             }
         }
@@ -419,6 +419,7 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
                     layoutMessageInput.setVisibility(View.VISIBLE);
                     rvMessages.setVisibility(View.VISIBLE);
                     rvFoundPeers.setVisibility(View.GONE);
+                    presenter.handleCurrentUser(senderName);
                 }
 
                 @Override

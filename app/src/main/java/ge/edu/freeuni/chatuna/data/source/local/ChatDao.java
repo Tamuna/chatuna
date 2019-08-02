@@ -14,7 +14,8 @@ import ge.edu.freeuni.chatuna.model.MessageModel;
 
 @Dao
 public interface ChatDao {
-    @Query("SELECT count(*) AS messageCount, u.name as senderName, m_date AS date FROM messages " +
+    @Query("SELECT count(*) AS messageCount, CASE WHEN m.sender_user_id == :id" +
+            " THEN m.receiver_user_id ELSE m.sender_user_id END AS senderName, m_date AS date FROM messages " +
             "m JOIN users u ON m.sender_user_id = u.id or m.receiver_user_id = u.id JOIN (SELECT " +
             "CASE WHEN m1.sender_user_id == :id THEN m1.receiver_user_id ELSE m1.sender_user_id END " +
             "AS m_user_id, max(m1.create_date) AS m_date FROM messages AS m1 WHERE m1.sender_user_id " +

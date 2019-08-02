@@ -14,8 +14,8 @@ class ChatPresenterImpl(
         view.registerReceiver()
     }
 
-    override fun handleCurrentUser() {
-        interactor.handleCurrentUser()
+    override fun handleCurrentUser(username: String) {
+        interactor.handleCurrentUser(username)
     }
 
     override fun loadChatHistory(senderName: String) {

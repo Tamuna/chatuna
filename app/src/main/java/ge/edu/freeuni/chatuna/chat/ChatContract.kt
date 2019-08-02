@@ -19,7 +19,7 @@ interface ChatContract {
         fun sendMessage(message: MessageModel, senderName: String)
         fun loadChatHistory(senderName: String)
         fun start()
-        fun handleCurrentUser()
+        fun handleCurrentUser(username: String)
         fun deleteHistory(name: String)
     }
 
@@ -32,7 +32,7 @@ interface ChatContract {
 
         fun sendMessage(message: MessageModel, onFinishListener: OnFinishListener, receiverName: String)
         fun loadHistory(senderName: String, onFinishListener: OnFinishListener)
-        fun handleCurrentUser()
+        fun handleCurrentUser(username: String)
         fun deleteMessage(senderName: String, onFinishListener: OnFinishListener)
     }
 }
