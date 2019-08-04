@@ -27,6 +27,9 @@ public class MainInteractorImpl implements MainContract.MainInteractor {
             @Override
             public void onIdLoaded(long id) {
                 List<HistoryModel> testData = new ArrayList<>();
+                if (id <= 0) {
+                    onFinishListener.onFinished(testData);
+                }
                 chatRepository.getHistory(id, new ChatDataSource.GetHistoryCallback() {
                     @Override
                     public void onHistoryLoaded(List<HistoryModel> histories) {
@@ -48,5 +51,21 @@ public class MainInteractorImpl implements MainContract.MainInteractor {
             }
         });
 
+    }
+
+    @Override
+    public void findSelf(@NotNull OnSelfFound onSelfFound) {
+        chatRepository.getSelf(new ChatDataSource.GetSelfCallback() {
+            @Override
+            public void onSelfLoaded(User user) {
+                App.username = user.getName();
+                onSelfFound.onFinished();
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+
+            }
+        });
     }
 }

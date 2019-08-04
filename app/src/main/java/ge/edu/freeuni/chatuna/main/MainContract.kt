@@ -18,6 +18,11 @@ interface MainContract {
             fun onFinished(histories: List<HistoryModel>)
         }
 
+        interface OnSelfFound {
+            fun onFinished()
+        }
+
+        fun findSelf(onSelfFound: OnSelfFound)
         fun getHistory(onFinishListener: OnFinishListener)
     }
 }

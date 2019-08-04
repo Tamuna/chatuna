@@ -277,11 +277,12 @@ public class ChatActivity extends AppCompatActivity implements WifiP2pManager.Pe
         if (isHistory) {
             presenter.loadChatHistory(senderName);
             rvFoundPeers.setVisibility(View.GONE);
+            viewLoader.setVisibility(View.GONE);
             rvMessages.setVisibility(View.VISIBLE);
+        } else {
+            viewLoader.setVisibility(View.VISIBLE);
+            discoverPeers();
         }
-        viewLoader.setVisibility(View.VISIBLE);
-        discoverPeers();
-
     }
 
     private void discoverPeers() {

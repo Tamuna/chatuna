@@ -31,6 +31,21 @@ public class ChatRepository implements ChatDataSource {
     }
 
     @Override
+    public void getSelf(GetSelfCallback callback) {
+        chatLocalDataSource.getSelf(new GetSelfCallback() {
+            @Override
+            public void onSelfLoaded(User user) {
+                callback.onSelfLoaded(user);
+            }
+
+            @Override
+            public void onDataNotAvailable() {
+                callback.onDataNotAvailable();
+            }
+        });
+    }
+
+    @Override
     public void getUserIdByName(String name, GetIdCallback callback) {
         chatLocalDataSource.getUserIdByName(name, new GetIdCallback() {
             @Override

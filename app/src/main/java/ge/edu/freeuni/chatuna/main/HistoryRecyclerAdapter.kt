@@ -54,7 +54,7 @@ class HistoryRecyclerAdapter(private val onItemClickedListener: OnItemClickedLis
         }
 
         fun bindData(data: HistoryModel) {
-            val date = Date(data.date.toLong()).toString().substring(0, 19)
+            val date = data.date
             tvLastMessageDate.text = date
             tvMessageCount.text = data.messageCount.toString()
             tvPhoneName.text = data.senderName

@@ -1,8 +1,16 @@
 package ge.edu.freeuni.chatuna.data.source.local;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
@@ -10,6 +18,7 @@ import ge.edu.freeuni.chatuna.data.source.ChatDataSource;
 import ge.edu.freeuni.chatuna.model.HistoryModel;
 import ge.edu.freeuni.chatuna.model.MessageModel;
 import ge.edu.freeuni.chatuna.utils.AppExecutors;
+import ge.edu.freeuni.chatuna.utils.DateUtils;
 
 public class ChatLocalDataSource implements ChatDataSource {
     private static volatile ChatLocalDataSource INSTANCE;
@@ -55,6 +64,28 @@ public class ChatLocalDataSource implements ChatDataSource {
     }
 
     @Override
+    public void getSelf(final GetSelfCallback callback) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                final User user = chatDao.getSelf();
+                appExecutors.mainThread().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (user != null) {
+                            callback.onSelfLoaded(user);
+                        } else {
+                            callback.onDataNotAvailable();
+                        }
+                    }
+                });
+            }
+        };
+
+        appExecutors.diskIO().execute(runnable);
+    }
+
+    @Override
     public void getSingleChatById(long userId, GetSingleChatCallback callback) {
         Runnable runnable = new Runnable() {
             @Override
@@ -81,14 +112,39 @@ public class ChatLocalDataSource implements ChatDataSource {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                final List<HistoryModel> histories = chatDao.getHistory(id);
+                final List<Message> histories = chatDao.getHistory();
                 appExecutors.mainThread().execute(new Runnable() {
                     @Override
                     public void run() {
-                        if (histories.isEmpty()) {
+                        Map<Long, Integer> counts = new HashMap<>();
+                        Map<Long, Date> maxDate = new HashMap<>();
+
+                        for (int i = 0; i < histories.size(); i++) {
+                            Long currentPeerId;
+                            if (histories.get(i).getSenderUserId() == id) {
+                                currentPeerId = histories.get(i).getReceiverUserId();
+                            } else {
+                                currentPeerId = histories.get(i).getSenderUserId();
+                            }
+                            if (counts.containsKey(currentPeerId)) {
+                                counts.put(currentPeerId, counts.get(currentPeerId) + 1);
+                                maxDate.put(currentPeerId, DateUtils.max(maxDate.get(currentPeerId), histories.get(i).getCreateDate()));
+                            } else {
+                                counts.put(currentPeerId, 1);
+                                maxDate.put(currentPeerId, histories.get(i).getCreateDate());
+                            }
+                        }
+
+                        List<HistoryModel> result = new ArrayList<>();
+                        for (Long id : maxDate.keySet()) {
+                            String name = chatDao.getUsernameById(id);
+                            result.add(new HistoryModel(name, counts.get(id), maxDate.get(id).toString()));
+                        }
+
+                        if (result.isEmpty()) {
                             callback.onDataNotAvailable();
                         } else {
-                            callback.onHistoryLoaded(histories);
+                            callback.onHistoryLoaded(result);
                         }
                     }
                 });

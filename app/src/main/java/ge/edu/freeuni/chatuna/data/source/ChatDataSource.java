@@ -32,6 +32,14 @@ public interface ChatDataSource {
         void onDataNotAvailable();
     }
 
+    interface GetSelfCallback {
+        void onSelfLoaded(User user);
+
+        void onDataNotAvailable();
+    }
+
+    public void getSelf(final GetSelfCallback callback);
+
     void getUserIdByName(String name, GetIdCallback callback);
 
     void getSingleChatById(long userId, GetSingleChatCallback callback);

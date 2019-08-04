@@ -14,23 +14,22 @@ import ge.edu.freeuni.chatuna.model.MessageModel;
 
 @Dao
 public interface ChatDao {
-    @Query("SELECT count(*) AS messageCount, u.name as senderName, m_date AS date FROM messages " +
-            "m JOIN users u ON m.sender_user_id = u.id or m.receiver_user_id = u.id JOIN (SELECT " +
-            "CASE WHEN m1.sender_user_id == :id THEN m1.receiver_user_id ELSE m1.sender_user_id END " +
-            "AS m_user_id, max(m1.create_date) AS m_date FROM messages AS m1 WHERE m1.sender_user_id " +
-            "!= :id or m1.sender_user_id GROUP BY CASE WHEN m1.sender_user_id == :id THEN " +
-            "m1.receiver_user_id ELSE m1.sender_user_id END) max_dates WHERE CASE WHEN m.sender_user_id == :id" +
-            " THEN m.receiver_user_id ELSE m.sender_user_id END AND max_dates.m_user_id = u.id GROUP " +
-            "BY CASE WHEN m.sender_user_id == :id THEN m.receiver_user_id ELSE m.sender_user_id END")
-    List<HistoryModel> getHistory(long id);
+    @Query("SELECT * FROM messages")
+    List<Message> getHistory();
 
     @Query("SELECT m.message_text AS messageText, m.create_date AS createDate, null AS senderName," +
             " CASE WHEN m.sender_user_id == :userId THEN 0 ELSE 1 END AS isSent FROM messages m " +
-            "ORDER BY m.create_date")
+            "WHERE m.sender_user_id == :userId OR m.receiver_user_id == :userId ORDER BY m.create_date")
     List<MessageModel> getSingleChatById(long userId);
+
+    @Query("SELECT * FROM users u WHERE u.is_me = 1")
+    User getSelf();
 
     @Query("SELECT id FROM users WHERE :name = name")
     long getUserIdByName(String name);
+
+    @Query("SELECT name FROM users WHERE id = :id")
+    String getUsernameById(Long id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(Message message);

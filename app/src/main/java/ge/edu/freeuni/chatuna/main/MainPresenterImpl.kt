@@ -1,14 +1,15 @@
 package ge.edu.freeuni.chatuna.main
 
+import android.util.Log
+import ge.edu.freeuni.chatuna.App
 import ge.edu.freeuni.chatuna.model.HistoryModel
 
 class MainPresenterImpl(
         private val interactor: MainContract.MainInteractor,
         private val view: MainContract.MainView
 ) : MainContract.MainPresenter {
-
     override fun start() {
-        getHistory()
+        interactor.findSelf(OnSelfFoundImpl())
     }
 
     override fun getHistory() {
@@ -24,5 +25,11 @@ class MainPresenterImpl(
             }
         }
 
+    }
+
+    inner class OnSelfFoundImpl : MainContract.MainInteractor.OnSelfFound {
+        override fun onFinished() {
+            interactor.getHistory(OnFinishListenerImpl())
+        }
     }
 }

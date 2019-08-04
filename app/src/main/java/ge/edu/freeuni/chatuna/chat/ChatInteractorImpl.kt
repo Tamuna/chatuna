@@ -26,16 +26,18 @@ class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContr
     override fun handleCurrentUser(username: String) {
         chatRepository.getUserIdByName(username, object : ChatDataSource.GetIdCallback {
             override fun onIdLoaded(id: Long) {
-                if (id <= 0) {
-                    var isMe: Boolean = false
-                    if (username.equals(App.username)) {
-                        isMe = true
-                    }
-                    chatRepository.saveUser( User(username, isMe), object : ChatDataSource.InsertUserCallback {
-                        override fun onUserInserted(id: Long) {
-                        }
-                    })
+                var isMe: Boolean = false
+                if (username.equals(App.username)) {
+                    isMe = true
                 }
+                var user: User = User(username, isMe)
+                if (id > 0) {
+                    user.id = id
+                }
+                chatRepository.saveUser( user, object : ChatDataSource.InsertUserCallback {
+                    override fun onUserInserted(id: Long) {
+                    }
+                })
             }
 
             override fun onDataNotAvailable() {
@@ -73,7 +75,6 @@ class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContr
     }
 
     override fun sendMessage(message: MessageModel, onFinishListener: ChatContract.ChatInteractor.OnFinishListener, receiverName: String) {
-        Log.d("test_name", message.senderName + " " + receiverName);
         chatRepository.getUserIdByName(receiverName, object : ChatDataSource.GetIdCallback {
             override fun onIdLoaded(receiverId: Long) {
                 chatRepository.getUserIdByName(App.username, object : ChatDataSource.GetIdCallback {
