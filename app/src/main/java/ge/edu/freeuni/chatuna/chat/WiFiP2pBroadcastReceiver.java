@@ -47,9 +47,6 @@ public class WiFiP2pBroadcastReceiver extends BroadcastReceiver {
             }
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             WifiP2pDevice device = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
-            if (App.username != null) {
-                App.nameUpdated = true;
-            }
             App.username = device.deviceName;
             listener.onNameChanged();
         }
