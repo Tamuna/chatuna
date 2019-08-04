@@ -10,7 +10,7 @@ import ge.edu.freeuni.chatuna.data.Message;
 import ge.edu.freeuni.chatuna.data.User;
 import ge.edu.freeuni.chatuna.utils.DateTypeConverter;
 
-@androidx.room.Database(entities = {User.class, Message.class}, version = 2, exportSchema = false)
+@androidx.room.Database(entities = {User.class, Message.class}, version = 3, exportSchema = false)
 @TypeConverters({DateTypeConverter.class})
 public abstract class ChatDatabase extends RoomDatabase {
 

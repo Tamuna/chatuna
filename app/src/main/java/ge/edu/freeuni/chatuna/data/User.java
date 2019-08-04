@@ -13,14 +13,32 @@ public class User {
     @ColumnInfo(name = "name")
     private String name;
 
+    @ColumnInfo(name = "is_me")
+    private boolean isMe;
+
     @Ignore
     public User(String name){
         setName(name);
     }
 
-    public User(long id, String name) {
+    @Ignore
+    public User(String name, boolean isMe){
+        setName(name);
+        setMe(isMe);
+    }
+
+    public User(long id, String name, boolean isMe) {
         setId(id);
         setName(name);
+        setMe(isMe);
+    }
+
+    public boolean isMe() {
+        return isMe;
+    }
+
+    public void setMe(boolean me) {
+        isMe = me;
     }
 
     public long getId() {

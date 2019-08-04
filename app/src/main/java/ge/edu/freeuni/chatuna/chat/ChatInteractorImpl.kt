@@ -27,7 +27,11 @@ class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContr
         chatRepository.getUserIdByName(username, object : ChatDataSource.GetIdCallback {
             override fun onIdLoaded(id: Long) {
                 if (id <= 0) {
-                    chatRepository.saveUser(User(App.username), object : ChatDataSource.InsertUserCallback {
+                    var isMe: Boolean = false
+                    if (username.equals(App.username)) {
+                        isMe = true
+                    }
+                    chatRepository.saveUser( User(username, isMe), object : ChatDataSource.InsertUserCallback {
                         override fun onUserInserted(id: Long) {
                         }
                     })
