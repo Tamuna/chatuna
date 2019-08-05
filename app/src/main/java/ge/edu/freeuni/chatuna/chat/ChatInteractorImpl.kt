@@ -77,7 +77,7 @@ class ChatInteractorImpl(private val chatRepository: ChatRepository) : ChatContr
     override fun sendMessage(message: MessageModel, onFinishListener: ChatContract.ChatInteractor.OnFinishListener, receiverName: String) {
         chatRepository.getUserIdByName(receiverName, object : ChatDataSource.GetIdCallback {
             override fun onIdLoaded(receiverId: Long) {
-                chatRepository.getUserIdByName(App.username, object : ChatDataSource.GetIdCallback {
+                chatRepository.getUserIdByName(message.senderName, object : ChatDataSource.GetIdCallback {
                     override fun onIdLoaded(senderId: Long) {
                         chatRepository.saveMessage(Message(message.messageText, message.createDate, senderId, receiverId))
                     }
